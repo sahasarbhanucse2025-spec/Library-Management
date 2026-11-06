@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bibliotheca Pro | Unified Library Management System</title>
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            indigo: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            },
+            slate: {
+              850: '#151f32',
+              900: '#0f172a',
+              950: '#020617',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['Fira Code', 'Consolas', 'Monaco', 'Courier New', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-200 antialiased flex flex-col min-h-screen">
+
+  <!-- ========================================================================= -->
+  <!-- TOP APP HEADER & NAVIGATION -->
+  <!-- ========================================================================= -->
+  <header class="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-400 flex items-center justify-center text-white shadow-md shadow-indigo-500/25">
+          <i data-lucide="book-open" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-indigo-600 to-indigo-400 bg-clip-text text-transparent">Bibliotheca Pro</span>
+            <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">SaaS + CLI + Kotlin</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Unified 3-in-1 Library Management Architecture</p>
+        </div>
+      </div>
+
+      <!-- Center Viewport Switcher: Web View vs Mobile App View -->
+      <div class="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+        <button id="viewToggleWeb" onclick="setViewportMode('web')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span>Web View</span>
+        </button>
+        <button id="viewToggleMobile" onclick="setViewportMode('mobile')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200">
+          <i data-lucide="smartphone" class="w-4 h-4"></i>
+          <span>Mobile App View</span>
+        </button>
+      </div>
+
+      <!-- Right Header Actions -->
+      <div class="flex items-center gap-2">
+        
+        <!-- Interactive Terminal Drawer Button -->
+        <button onclick="toggleTerminalDrawer()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 dark:bg-slate-800 text-slate-100 hover:bg-slate-800 dark:hover:bg-slate-700 border border-slate-700 transition shadow-sm">
+          <i data-lucide="terminal" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span class="hidden md:inline">CLI Console</span>
+        </button>
+
+        <!-- Kotlin Code Viewer Button -->
+        <button onclick="openKotlinModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 hover:bg-purple-100 dark:hover:bg-purple-900/40 transition">
+          <i data-lucide="file-code" class="w-3.5 h-3.5 text-purple-500"></i>
+          <span class="hidden md:inline">Kotlin Source (.kt)</span>
+        </button>
+
+        <!-- Dark / Light Mode Toggle -->
+        <button onclick="toggleDarkMode()" class="p-2 rounded-lg text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Toggle Theme">
+          <i id="themeIcon" data-lucide="moon" class="w-4 h-4"></i>
+        </button>
+
+        <!-- Reset Seed State -->
+        <button onclick="resetSessionState()" class="p-2 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition" title="Reset / Re-seed Catalog">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN WORKSPACE CONTAINER -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ===================================================================== -->
+    <!-- VIEW A: DESKTOP / WEB BENTO DASHBOARD -->
+    <!-- ===================================================================== -->
+    <div id="desktopDashboardContainer" class="space-y-6">
+
+      <!-- TOP KPI SUMMARY BAR (4 Live Metric Cards) -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- KPI 1: Total Registered Books -->
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Registered Books</p>
+            <h3 id="kpiTotalBooks" class="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">8</h3>
+            <p class="text-xs text-indigo-600 dark:text-indigo-400 mt-1 flex items-center gap-1">
+              <i data-lucide="layers" class="w-3 h-3"></i> Catalog Titles
+            </p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <i data-lucide="library" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <!-- KPI 2: Total Available Copies -->
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Available Copies</p>
+            <h3 id="kpiAvailableCopies" class="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">23</h3>
+            <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1">
+              <i data-lucide="check-circle" class="w-3 h-3"></i> Ready to Borrow
+            </p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+            <i data-lucide="book-check" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <!-- KPI 3: Currently Issued Books -->
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Currently Issued</p>
+            <h3 id="kpiCurrentlyIssued" class="text-3xl font-extrabold text-amber-600 dark:text-amber-400 mt-1">3</h3>
+            <p class="text-xs text-amber-600 dark:text-amber-400 mt-1 flex items-center gap-1">
+              <i data-lucide="clock" class="w-3 h-3"></i> Active Student Loans
+            </p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+            <i data-lucide="book-up" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <!-- KPI 4: Unique Active Borrowers -->
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active Borrowers</p>
+            <h3 id="kpiActiveBorrowers" class="text-3xl font-extrabold text-purple-600 dark:text-purple-400 mt-1">3</h3>
+            <p class="text-xs text-purple-600 dark:text-purple-400 mt-1 flex items-center gap-1">
+              <i data-lucide="users" class="w-3 h-3"></i> Unique Student IDs
+            </p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+            <i data-lucide="user-check" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- UNIFIED COMMAND BAR (Tasks 1 - 7 Quick Actions) -->
+      <section class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Quick Actions:</span>
+          
+          <!-- Task 1: Add Book Button -->
+          <button onclick="openAddBookModal()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20 transition">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>1. Add Book</span>
+          </button>
+
+          <!-- Task 4: Issue Book Button -->
+          <button onclick="openIssueModal()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/20 transition">
+            <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+            <span>4. Issue Book</span>
+          </button>
+
+          <!-- Task 5: Return Book Button -->
+          <button onclick="openReturnModal()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/20 transition">
+            <i data-lucide="arrow-down-left" class="w-3.5 h-3.5"></i>
+            <span>5. Return Book</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Task 6: View Issued Section Anchor -->
+          <a href="#issuedBooksSection" class="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            <i data-lucide="list-ordered" class="w-3.5 h-3.5"></i>
+            <span>6. Issued Records (<span id="issuedBadgeCount">3</span>)</span>
+          </a>
+
+          <!-- Task 7: Open Terminal -->
+          <button onclick="toggleTerminalDrawer()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            <i data-lucide="terminal" class="w-3.5 h-3.5 text-emerald-500"></i>
+            <span>7. CLI Terminal</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- CATALOG SECTION (Task 2 & Task 3) -->
+      <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        
+        <!-- Catalog Header: Search & Filter Controls -->
+        <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          
+          <!-- Search Bar (Task 3: Real-Time Search) -->
+          <div class="relative flex-1 max-w-md">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input 
+              type="text" 
+              id="catalogSearchInput" 
+              oninput="handleSearchInput(event)"
+              placeholder="Search by Book ID, Title, or Author..." 
+              class="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white placeholder-slate-400"
+            />
+            <button id="searchClearBtn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+              <i data-lucide="x" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+
+          <!-- Filter Pills & View Toggle -->
+          <div class="flex flex-wrap items-center gap-3">
+            
+            <!-- Filter Pills -->
+            <div class="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs">
+              <button onclick="setFilter('all')" id="filterAll" class="px-3 py-1.5 rounded-lg font-semibold bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm transition">
+                All Books
+              </button>
+              <button onclick="setFilter('available')" id="filterAvailable" class="px-3 py-1.5 rounded-lg font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
+                Available Only
+              </button>
+              <button onclick="setFilter('outOfStock')" id="filterOutOfStock" class="px-3 py-1.5 rounded-lg font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
+                Out of Stock
+              </button>
+            </div>
+
+            <!-- Sort By Dropdown -->
+            <select id="catalogSortSelect" onchange="handleSortChange(event)" class="text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="id_asc">Sort: Book ID (A-Z)</option>
+              <option value="id_desc">Sort: Book ID (Z-A)</option>
+              <option value="title_asc">Sort: Title (A-Z)</option>
+              <option value="year_desc">Sort: Year (Newest First)</option>
+              <option value="copies_desc">Sort: Copies (Highest First)</option>
+            </select>
+
+            <!-- Table / Grid Switcher -->
+            <div class="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs">
+              <button onclick="setCatalogView('table')" id="viewModeTable" class="p-1.5 rounded-lg bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm" title="Table View">
+                <i data-lucide="table" class="w-4 h-4"></i>
+              </button>
+              <button onclick="setCatalogView('grid')" id="viewModeGrid" class="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white" title="Card Grid View">
+                <i data-lucide="grid" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Catalog Content Container -->
+        <div id="catalogContent" class="p-4 sm:p-6">
+          <!-- Dynamically populated table or grid via app.js -->
+        </div>
+
+      </section>
+
+      <!-- CURRENTLY ISSUED BOOKS SECTION (Task 6 & Task 5) -->
+      <section id="issuedBooksSection" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        
+        <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+              <i data-lucide="book-marked" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-slate-900 dark:text-white">Currently Issued Books</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Task 6: Active borrower records with 1-click return execution</p>
+            </div>
+          </div>
+          
+          <button onclick="openReturnModal()" class="px-3 py-1.5 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition flex items-center gap-1.5">
+            <i data-lucide="corner-down-left" class="w-3.5 h-3.5 text-emerald-500"></i>
+            <span>Manual Return Entry</span>
+          </button>
+        </div>
+
+        <!-- Issued Books Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50/75 dark:bg-slate-800/50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                <th class="py-3 px-4">Txn ID</th>
+                <th class="py-3 px-4">Book ID</th>
+                <th class="py-3 px-4">Book Title</th>
+                <th class="py-3 px-4">Student ID</th>
+                <th class="py-3 px-4">Issue Date/Time</th>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4 text-right">Quick Action</th>
+              </tr>
+            </thead>
+            <tbody id="issuedBooksTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+              <!-- Populated via app.js -->
+            </tbody>
+          </table>
+        </div>
+
+      </section>
+
+      <!-- HISTORICAL TRANSACTION LOG (Collapsible Drawer / Section) -->
+      <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div onclick="toggleHistoryAccordion()" class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+          <div class="flex items-center gap-2">
+            <i data-lucide="history" class="w-4 h-4 text-slate-400"></i>
+            <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Transaction History Log</span>
+            <span id="historyRecordCount" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">3 records</span>
+          </div>
+          <i id="historyAccordionChevron" data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform"></i>
+        </div>
+        <div id="historyAccordionContent" class="hidden border-t border-slate-200 dark:border-slate-800 p-4">
+          <div class="overflow-x-auto max-h-60 overflow-y-auto">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="text-slate-400 border-b border-slate-200 dark:border-slate-700 pb-2">
+                  <th class="pb-2">Txn ID</th>
+                  <th class="pb-2">Book ID</th>
+                  <th class="pb-2">Student ID</th>
+                  <th class="pb-2">Issue Time</th>
+                  <th class="pb-2">Return Time</th>
+                  <th class="pb-2">Status</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-600 dark:text-slate-300">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW B: APP-BASED MOBILE VIEWPORT SIMULATOR -->
+    <!-- ===================================================================== -->
+    <div id="mobileDashboardContainer" class="hidden flex flex-col items-center justify-center py-4">
+      
+      <!-- Device Presentation Notice -->
+      <div class="mb-4 text-center">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 text-xs font-medium">
+          <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+          <span>Interactive Mobile Simulation Mode (iOS / Android Form Factor)</span>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">Experience bottom navigation, compact touch cards, and native drawer sheets</p>
+      </div>
+
+      <!-- Smartphone Physical Frame -->
+      <div class="mobile-frame flex flex-col bg-slate-50 dark:bg-slate-900 shadow-2xl">
+        
+        <!-- Dynamic Island / Speaker Notch -->
+        <div class="dynamic-island">
+          <div class="dynamic-island-lens"></div>
+          <div class="dynamic-island-sensor"></div>
+        </div>
+
+        <!-- Phone Status Bar -->
+        <div class="h-10 pt-2 px-6 flex items-center justify-between text-[11px] font-semibold text-slate-900 dark:text-white z-40">
+          <span id="mobileClock">09:41</span>
+          <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+            <i data-lucide="signal" class="w-3 h-3"></i>
+            <i data-lucide="wifi" class="w-3 h-3"></i>
+            <i data-lucide="battery" class="w-3.5 h-3.5"></i>
+          </div>
+        </div>
+
+        <!-- Mobile App Content Area (Scrollable) -->
+        <div id="mobileScreenContent" class="flex-1 overflow-y-auto px-4 py-3 space-y-4 pb-20">
+          
+          <!-- Mobile App Header -->
+          <div class="flex items-center justify-between pt-1">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
+                <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+              </div>
+              <span class="font-bold text-sm tracking-tight">Bibliotheca Mobile</span>
+            </div>
+            <button onclick="openAddBookModal()" class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Mobile Quick KPI Glance -->
+          <div class="grid grid-cols-2 gap-2">
+            <div class="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+              <p class="text-[10px] text-slate-400 font-medium">AVAILABLE</p>
+              <p id="mobileKpiAvailable" class="text-xl font-bold text-emerald-600 dark:text-emerald-400">23</p>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+              <p class="text-[10px] text-slate-400 font-medium">ISSUED</p>
+              <p id="mobileKpiIssued" class="text-xl font-bold text-amber-600 dark:text-amber-400">3</p>
+            </div>
+          </div>
+
+          <!-- Mobile Tab Screen 1: Catalog -->
+          <div id="mobileTabCatalog" class="space-y-3">
+            <div class="relative">
+              <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+              <input 
+                type="text" 
+                id="mobileSearchInput" 
+                oninput="handleMobileSearch(event)" 
+                placeholder="Search catalog..." 
+                class="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none"
+              />
+            </div>
+            
+            <div id="mobileBookCardsContainer" class="space-y-2.5">
+              <!-- Dynamically populated mobile cards -->
+            </div>
+          </div>
+
+          <!-- Mobile Tab Screen 2: Issued -->
+          <div id="mobileTabIssued" class="hidden space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Active Borrowers</h4>
+            <div id="mobileIssuedCardsContainer" class="space-y-2">
+              <!-- Dynamically populated mobile issued cards -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Mobile App Bottom Navigation Bar -->
+        <div class="absolute bottom-0 left-0 right-0 h-16 bg-white/95 dark:bg-slate-850/95 border-t border-slate-200 dark:border-slate-700 backdrop-blur flex items-center justify-around px-2 z-40">
+          <button onclick="setMobileAppTab('catalog')" id="mobNavCatalog" class="flex flex-col items-center gap-1 text-indigo-600 dark:text-indigo-400">
+            <i data-lucide="book" class="w-4 h-4"></i>
+            <span class="text-[10px] font-semibold">Catalog</span>
+          </button>
+          <button onclick="setMobileAppTab('issued')" id="mobNavIssued" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+            <i data-lucide="book-up" class="w-4 h-4"></i>
+            <span class="text-[10px] font-medium">Issued</span>
+          </button>
+          <button onclick="openIssueModal()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+            <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+            <span class="text-[10px] font-medium">Issue</span>
+          </button>
+          <button onclick="openReturnModal()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+            <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
+            <span class="text-[10px] font-medium">Return</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: TASK 1 - ADD NEW BOOK -->
+  <!-- ========================================================================= -->
+  <div id="addBookModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 dark:text-white">Task 1: Add New Book</h3>
+            <p class="text-xs text-slate-500">Input validation & duplicate ID protection</p>
+          </div>
+        </div>
+        <button onclick="closeModal('addBookModal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Add Book Form -->
+      <form id="addBookForm" onsubmit="handleAddBookSubmit(event)" class="p-6 space-y-4">
+        
+        <!-- Error Alert Container -->
+        <div id="addBookErrorAlert" class="hidden p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400 text-xs flex items-center gap-2">
+          <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
+          <span id="addBookErrorMessage"></span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Book ID <span class="text-rose-500">*</span></label>
+          <input 
+            type="text" 
+            id="inputBookId" 
+            required 
+            placeholder="e.g., BK-109" 
+            class="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:text-white"
+          />
+          <p class="text-[11px] text-slate-400 mt-1">Must be unique (case-insensitive check)</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Book Title <span class="text-rose-500">*</span></label>
+          <input 
+            type="text" 
+            id="inputBookTitle" 
+            required 
+            placeholder="e.g., Structure and Interpretation of Computer Programs" 
+            class="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:text-white"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Author Name <span class="text-rose-500">*</span></label>
+          <input 
+            type="text" 
+            id="inputBookAuthor" 
+            required 
+            placeholder="e.g., Harold Abelson, Gerald Jay Sussman" 
+            class="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:text-white"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Publication Year <span class="text-rose-500">*</span></label>
+            <input 
+              type="number" 
+              id="inputPublicationYear" 
+              required 
+              min="1450" 
+              max="2026"
+              placeholder="e.g., 2021" 
+              class="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:text-white"
+            />
+            <p class="text-[11px] text-slate-400 mt-1">Between 1450 & current year</p>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Available Copies <span class="text-rose-500">*</span></label>
+            <input 
+              type="number" 
+              id="inputAvailableCopies" 
+              required 
+              min="0" 
+              placeholder="e.g., 5" 
+              class="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:text-white"
+            />
+            <p class="text-[11px] text-slate-400 mt-1">Inventory count (≥ 0)</p>
+          </div>
+        </div>
+
+        <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-800">
+          <button type="button" onclick="closeModal('addBookModal')" class="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-md shadow-indigo-500/20 transition flex items-center gap-1.5">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+            <span>Add Book to Catalog</span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: TASK 4 - ISSUE A BOOK -->
+  <!-- ========================================================================= -->
+  <div id="issueBookModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+            <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 dark:text-white">Task 4: Issue a Book</h3>
+            <p class="text-xs text-slate-500">Inventory check & loan record creation</p>
+          </div>
+        </div>
+        <button onclick="closeModal('issueBookModal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="issueBookForm" onsubmit="handleIssueBookSubmit(event)" class="p-6 space-y-4">
+        
+        <div id="issueErrorAlert" class="hidden p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400 text-xs flex items-center gap-2">
+          <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
+          <span id="issueErrorMessage"></span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Select Book <span class="text-rose-500">*</span></label>
+          <select 
+            id="issueBookSelect" 
+            required 
+            onchange="onIssueBookSelectionChange()"
+            class="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none dark:text-white"
+          >
+            <!-- Options populated dynamically -->
+          </select>
+          <div id="selectedBookStockInfo" class="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
+            <span>Copies Available: <strong id="selectedBookStockCount" class="text-emerald-500">--</strong></span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Student ID <span class="text-rose-500">*</span></label>
+          <input 
+            type="text" 
+            id="issueStudentId" 
+            required 
+            placeholder="e.g., STU-104" 
+            class="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none dark:text-white"
+          />
+          <p class="text-[11px] text-slate-400 mt-1">Borrower student identification code</p>
+        </div>
+
+        <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-800">
+          <button type="button" onclick="closeModal('issueBookModal')" class="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2 text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded-xl shadow-md shadow-amber-500/20 transition flex items-center gap-1.5">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+            <span>Confirm Issue</span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: TASK 5 - RETURN A BOOK -->
+  <!-- ========================================================================= -->
+  <div id="returnBookModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+            <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 dark:text-white">Task 5: Return a Book</h3>
+            <p class="text-xs text-slate-500">Strict active loan verification & inventory increment</p>
+          </div>
+        </div>
+        <button onclick="closeModal('returnBookModal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="returnBookForm" onsubmit="handleReturnBookSubmit(event)" class="p-6 space-y-4">
+        
+        <div id="returnErrorAlert" class="hidden p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400 text-xs flex items-center gap-2">
+          <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
+          <span id="returnErrorMessage"></span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Book ID <span class="text-rose-500">*</span></label>
+          <input 
+            type="text" 
+            id="returnBookId" 
+            required 
+            placeholder="e.g., BK-101" 
+            class="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none dark:text-white"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Student ID <span class="text-rose-500">*</span></label>
+          <input 
+            type="text" 
+            id="returnStudentId" 
+            required 
+            placeholder="e.g., STU-101" 
+            class="w-full px-3.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none dark:text-white"
+          />
+        </div>
+
+        <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-800">
+          <button type="button" onclick="closeModal('returnBookModal')" class="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md shadow-emerald-500/20 transition flex items-center gap-1.5">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+            <span>Validate & Return</span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: KOTLIN SOURCE CODE VIEWER (Task 7) -->
+  <!-- ========================================================================= -->
+  <div id="kotlinModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-4xl max-h-[85vh] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-xs">
+            KT
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 dark:text-white">LibraryManagementSystem.kt</h3>
+            <p class="text-xs text-slate-500">Idiomatic Kotlin: MutableMap + MutableList + when loop</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+          <button onclick="copyKotlinCode()" id="copyCodeBtn" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span id="copyCodeText">Copy Code</span>
+          </button>
+          <button onclick="downloadKotlinFile()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-xl bg-purple-600 hover:bg-purple-700 text-white transition">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Download .kt</span>
+          </button>
+          <button onclick="closeModal('kotlinModal')" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Code Viewer Body -->
+      <div class="p-4 bg-slate-950 overflow-y-auto flex-1 font-mono text-xs text-slate-300 leading-relaxed">
+        <pre><code id="kotlinCodeDisplay">Loading Kotlin Source Code...</code></pre>
+      </div>
+
+      <!-- Footer Highlights -->
+      <div class="p-3 bg-slate-100 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 flex flex-wrap items-center justify-between gap-2">
+        <span>✓ Uses <code class="text-indigo-500 font-semibold">HashMap&lt;String, Book&gt;</code> for O(1) Key Lookups</span>
+        <span>✓ Uses <code class="text-indigo-500 font-semibold">MutableList&lt;IssueRecord&gt;</code> for Transaction History</span>
+        <span>✓ Menu Dispatcher via Kotlin <code class="text-indigo-500 font-semibold">when (choice)</code> Expression</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- DRAWER: INTERACTIVE CONSOLE / CLI TERMINAL (Task 7) -->
+  <!-- ========================================================================= -->
+  <div id="terminalDrawer" class="terminal-drawer fixed bottom-0 right-0 left-0 md:left-auto md:w-[650px] z-50 transform translate-y-full transition-transform duration-300 ease-out shadow-2xl">
+    
+    <div class="terminal-window rounded-t-2xl border-t-2 border-x-2 border-slate-700 shadow-2xl flex flex-col h-[480px]">
+      
+      <!-- Terminal Window Bar -->
+      <div class="h-10 bg-[#161b22] px-4 flex items-center justify-between border-b border-slate-700 select-none">
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1.5">
+            <div class="w-3 h-3 rounded-full bg-rose-500 cursor-pointer" onclick="toggleTerminalDrawer()"></div>
+            <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+            <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+          </div>
+          <span class="text-xs font-mono text-slate-400 ml-2">LMS Interactive Shell (Options 1–7)</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="clearTerminal()" class="text-xs text-slate-400 hover:text-white px-2 py-0.5 rounded hover:bg-slate-800" title="Clear Screen">
+            Clear
+          </button>
+          <button onclick="toggleTerminalDrawer()" class="text-slate-400 hover:text-white">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Terminal Output Scroll Area -->
+      <div id="terminalOutput" class="flex-1 p-4 overflow-y-auto text-xs font-mono space-y-1.5 text-slate-300 select-text leading-relaxed">
+        <!-- Terminal lines injected via app.js -->
+      </div>
+
+      <!-- Terminal Prompt / Input Form -->
+      <form id="terminalInputForm" onsubmit="handleTerminalSubmit(event)" class="h-12 bg-[#090d13] px-4 border-t border-slate-800 flex items-center gap-2">
+        <span id="terminalPromptLabel" class="terminal-prompt text-xs font-mono">LMS &gt;</span>
+        <input 
+          type="text" 
+          id="terminalInputField" 
+          autocomplete="off" 
+          spellcheck="false" 
+          placeholder="Type 1-7 or command (e.g. 'help', 'list')..."
+          class="flex-1 bg-transparent border-none outline-none text-xs font-mono text-white placeholder-slate-600 focus:ring-0"
+        />
+        <span class="terminal-cursor"></span>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- TOAST NOTIFICATION STACK -->
+  <!-- ========================================================================= -->
+  <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full">
+    <!-- Toasts dynamically appended via showToast() in app.js -->
+  </div>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
